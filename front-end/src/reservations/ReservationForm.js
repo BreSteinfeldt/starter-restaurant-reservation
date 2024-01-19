@@ -17,6 +17,7 @@ export default function ReservationForm({ type }) {
   const [reservationsError, setReservationsError] = useState(null);
   const [formData, setFormData] = useState({ ...initialState });
 
+
   function changeHandler({ target }) {
     const value =
       target.type === "number" ? Number(target.value) : target.value;
@@ -43,6 +44,9 @@ export default function ReservationForm({ type }) {
     <div className="d-flex flex-column align-items-center">
       <h2 className="text-center pb-2">{type} Reservation</h2>
       <form action="" onSubmit={submitHandler}>
+
+      <h1 className="mx-2 mt-4">Create Reservation</h1>
+
         <div className="form-group">
           <label htmlFor="first_name" className="form-label">
             First name:

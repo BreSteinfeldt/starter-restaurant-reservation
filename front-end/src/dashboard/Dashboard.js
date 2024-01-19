@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { listReservations } from "../utils/api";
-import { useLocation } from "react-router-dom";
 import { today, previous, next } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
+import useQuery from "../utils/useQuery"
 
 
 /**
@@ -12,9 +12,7 @@ import ErrorAlert from "../layout/ErrorAlert";
  * @returns {JSX.Element}
  */
 function Dashboard() {
-  function useQuery() {
-    return new URLSearchParams(useLocation().search);
-  }
+  
   const query = useQuery();
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
