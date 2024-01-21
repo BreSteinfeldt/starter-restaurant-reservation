@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { listReservations } from "../utils/api";
 import { today, previous, next } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
-import useQuery from "../utils/useQuery"
-
+import useQuery from "../utils/useQuery";
+import TablesView from "../tables/TablesView";
+import { useHistory } from "react-router";
 
 /**
  * Defines the dashboard page.
@@ -12,49 +13,114 @@ import useQuery from "../utils/useQuery"
  * @returns {JSX.Element}
  */
 function Dashboard() {
-  
   const query = useQuery();
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
   const [date, setDate] = useState(query.get("date") || today());
+  const history = useHistory();
 
   useEffect(loadDashboard, [date]);
 
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
-    listReservations( {date}, abortController.signal)
+    listReservations({ date }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
     return () => abortController.abort();
   }
 
-  return (
-    <main>
-      <button
-        onClick={() => setDate(previous(date))}
-        className="btn btn-sm btn-light"
-      >
-        Previous Day
-      </button>
-      <button
-        className="mx-3 btn btn-sm btn-light"
-        onClick={() => setDate(today())}
-      >
-        Today
-      </button>
-      <button
-        onClick={() => setDate(next(date))}
-        className="btn btn-sm btn-light"
-      >
-        Next Day
-      </button>
-      <h1>Dashboard</h1>
-      <div className="d-md-flex mb-3">
-        <h4 className="mb-0">Reservations for date</h4>
+  const nextDay = () => {
+    history.push(`dashboard?date=${next(date)}`);
+  };
+  const prevDay = () => {
+    history.push(`dashboard?date=${previous(date)}`);
+  };
+  const currentDay = () => {
+    history.push(`dashboard?date=${today(date)}`);
+  };
+
+  const content = reservations.map((res, i) => (
+    <div key={i} className="d-flex">
+      <div className="col-2">
+        <p>{res.first_name}</p>
       </div>
-      <ErrorAlert error={reservationsError} />
-      {JSON.stringify(reservations)}
+      <div className="col-2">
+        <p>{res.last_name}</p>
+      </div>
+      <div className="col-2">
+        <p>{res.mobile_number}</p>
+      </div>
+      <div className="col-2">
+        <p>{res.reservation_time}</p>
+      </div>
+      <div className="col-2">
+        <p>{res.people}</p>
+      </div>
+      <div className="col-2">
+        <a href={`/reservations/${res.reservation_id}/seat`}>
+          <button type="button" className="btn btn-primary">
+            Seat
+          </button>
+        </a>
+      </div>
+    </div>
+  ));
+
+  return (
+    <main className="container-fluid mx-2 mt-4">
+       <div className="row">
+        <div className="col-8">
+          <h1>Dashboard</h1>
+          <div className="d-md-flex mb-3">
+            <h4 className="mb-0 mr-1">Reservations for date: </h4>
+            <h4>{date}</h4>
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary mx-1 mb-2"
+            onClick={prevDay}
+          >
+            Previous Day
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary mx-1 mb-2"
+            onClick={currentDay}
+          >
+            Current Day
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary mx-1 mb-2"
+            onClick={nextDay}
+          >
+            Next day
+          </button>
+          <ErrorAlert error={reservationsError} />
+          <div className="d-flex">
+            <div className="col-2">
+              <h5>First Name</h5>
+            </div>
+            <div className="col-2">
+              <h5>Last Name</h5>
+            </div>
+            <div className="col-2">
+              <h5>Mobile #</h5>
+            </div>
+            <div className="col-2">
+              <h5>Time</h5>
+            </div>
+            <div className="col-2">
+              <h5>Seats</h5>
+            </div>
+          </div>
+          <div>{content}</div>
+        </div>
+        <div className="col-4">
+          <TablesView />
+        </div>
+      </div>
     </main>
   );
 }
