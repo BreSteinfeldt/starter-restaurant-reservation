@@ -30,7 +30,7 @@ export default function Seating() {
 
   function submitHandler(event) {
     event.preventDefault();
-    if (table == 0) return;
+    if (table === 0) return;
     seatTable(reservation_id, table)
       .then(() => history.push(`/dashboard`))
       .catch(setErrorMessage);

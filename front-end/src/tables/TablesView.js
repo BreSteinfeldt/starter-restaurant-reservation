@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listTables } from "../utils/api";
+import { listTables, unseatTable } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
 export default function TablesView() {
@@ -15,6 +15,10 @@ export default function TablesView() {
     return () => abortController.abort();
   }
 
+  function deleteHandler(table_id) {
+    unseatTable(table_id).then(loadTables).catch(setTablesError);
+  }
+
   return (
     <div>
       <ErrorAlert error={tablesError} />
@@ -26,8 +30,18 @@ export default function TablesView() {
             <h5>{`${table.table_name}`}</h5>
               <p>capacity: {table.capacity}</p>
             </div>
-            <div data-table-id-status={table.table_id} className="col-6">
+            <div data-table-id-status={table.table_id} className="col-3">
               <p>{table.occupied ? "Occupied" : "Free"}</p>
+            </div>
+            <div data-table-id-finish={table.table_id} className="col-3">
+              {table.occupied && (
+                <button
+                  className="btn btn-warning"
+                  onClick={() => deleteHandler(table.table_id)}
+                >
+                  Finish
+                </button>
+              )}
             </div>
           </div>
         ))}
