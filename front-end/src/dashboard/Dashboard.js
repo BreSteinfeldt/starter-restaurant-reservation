@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { listReservations } from "../utils/api";
+import { listReservations, updateReservation } from "../utils/api";
 import { today, previous, next } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 import useQuery from "../utils/useQuery";
@@ -30,6 +30,12 @@ function Dashboard() {
     return () => abortController.abort();
   }
 
+  function clickHandler(reservation, newStatus) {
+    updateReservation(reservation, newStatus)
+      .then(loadDashboard)
+      .catch(setReservationsError);
+  }
+
   const nextDay = () => {
     history.push(`dashboard?date=${next(date)}`);
   };
@@ -41,35 +47,64 @@ function Dashboard() {
   };
 
   const content = reservations.map((res, i) => (
-    <div key={i} className="d-flex">
-      <div className="col-2">
-        <p>{res.first_name}</p>
-      </div>
-      <div className="col-2">
-        <p>{res.last_name}</p>
-      </div>
-      <div className="col-2">
-        <p>{res.mobile_number}</p>
-      </div>
-      <div className="col-2">
-        <p>{res.reservation_time}</p>
-      </div>
-      <div className="col-2">
-        <p>{res.people}</p>
-      </div>
-      <div className="col-2">
-        <a href={`/reservations/${res.reservation_id}/seat`}>
-          <button type="button" className="btn btn-primary">
-            Seat
-          </button>
-        </a>
-      </div>
+    <div key={i}>
+      {res.status !== "finished" && (
+        <div className="d-flex align-items-center">
+          <div className="col-2">
+            <p>{res.first_name}</p>
+          </div>
+          <div className="col-2">
+            <p>{res.last_name}</p>
+          </div>
+          <div className="col-2">
+            <p>{res.mobile_number}</p>
+          </div>
+          <div className="col-2">
+            <p>{res.reservation_time}</p>
+          </div>
+          <div className="col-2">
+            <p>{res.people}</p>
+          </div>
+          <div className="col-2">
+            {res.status === "booked" && (
+              <>
+                <p data-reservation-id-status={res.reservation_id}>
+                  {res.status}
+                </p>
+                <a href={`/reservations/${res.reservation_id}/seat`}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => clickHandler(res, "seated")}
+                  >
+                    Seat
+                  </button>
+                </a>
+              </>
+            )}
+            {res.status === "seated" && (
+              <>
+                <p data-reservation-id-status={res.reservation_id}>
+                  {res.status}
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-warning"
+                  onClick={() => clickHandler(res, "finished")}
+                >
+                  Finish
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   ));
 
   return (
     <main className="container-fluid mx-2 mt-4">
-       <div className="row">
+      <div className="row">
         <div className="col-8">
           <h1>Dashboard</h1>
           <div className="d-md-flex mb-3">
@@ -113,6 +148,9 @@ function Dashboard() {
             </div>
             <div className="col-2">
               <h5>Seats</h5>
+            </div>
+            <div className="col-2">
+              <h5>Status</h5>
             </div>
           </div>
           <div>{content}</div>

@@ -10,7 +10,8 @@ export default function ReservationForm({ type }) {
     mobile_number: "",
     reservation_date: "",
     reservation_time: "",
-    people: 1,
+    people: "",
+    status: "booked",
   };
 
   const history = useHistory();
@@ -45,7 +46,7 @@ export default function ReservationForm({ type }) {
       <h2 className="text-center pb-2">{type} Reservation</h2>
       <form action="" onSubmit={submitHandler}>
 
-      <h1 className="mx-2 mt-4">Create Reservation</h1>
+      <h1 className="mx-2 mt-4">Create Reservation (UTC Time Zone)</h1>
 
         <div className="form-group">
           <label htmlFor="first_name" className="form-label">

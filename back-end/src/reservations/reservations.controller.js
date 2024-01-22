@@ -14,23 +14,17 @@ async function list(req, res) {
 }
 
 function isValid(req, res, next) {
-  if (!req.body.data) return next({ status: 400, message: "No date selected" });
-  const { reservation_date, reservation_time, first_name, last_name, mobile_number, people } = req.body.data;
-  const requiredFields = [
-    "first_name",
-    "last_name",
-    "mobile_number",
-    "reservation_date",
-    "reservation_time",
-    "people",
-  ];
-
-  for (const field of requiredFields) {
-    if (!req.body.data[field]) {
-      return next({ status: 400, message: `Invalid input for ${field}` });
-    }
-  }
-
+  const {
+    data: {
+      first_name,
+      last_name,
+      mobile_number,
+      reservation_date,
+      reservation_time,
+      people,
+      status,
+    },
+  } = req.body;
   const today = Date.now();
   const submitDate = new Date(reservation_date + " " + reservation_time);
   const errs = [];
@@ -53,7 +47,7 @@ function isValid(req, res, next) {
   }
   if (submitDate < today) {
     goNext = true;
-    errs.push(`Please select a valid, future date`);
+    errs.push(`Please select a valid, future date and time`);
   }
   if (submitDate.getDay() === 2) {
     goNext = true;
@@ -65,7 +59,9 @@ function isValid(req, res, next) {
   }
   if (reservation_time < "103000") {
     goNext = true;
-    errs.push(`Restaurant does not open until 10:30`);
+    errs.push(
+      `Restaurant does not open until 10:30, please choose a time after opening`
+    );
   }
   if (reservation_time > "213000") {
     goNext = true;
@@ -74,17 +70,43 @@ function isValid(req, res, next) {
     );
   }
   if (goNext) return next({ status: 400, message: errs });
-
-  res.locals.validReservation = req.body.data;
+  res.locals.reservation = {
+    first_name,
+    last_name,
+    mobile_number,
+    reservation_date,
+    reservation_time,
+    people,
+    status,
+  };
   next();
+  return next();
+}
+
+async function reservationExists(req, res, next) {
+  const reservation = await service.read(req.params.reservation_id);
+  if (reservation) {
+    res.locals.reservation = reservation;
+    return next();
+  }
+  return next({ status: 400, message: [`Reservation not found`] });
+}
+
+async function update(req, res) {
+  const updatedReservation = {
+    ...res.locals.reservation,
+    status: req.body.data.status,
+  };
+  res.json({ data: await service.update(updatedReservation) });
 }
 
 async function create(req, res) {
-  const data = await service.create(res.locals.validReservation);
+  const data = await service.create(res.locals.reservation);
   res.status(201).json({ data });
 }
 
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [isValid, asyncErrorBoundary(create)],
+  update: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(update)],
 };
