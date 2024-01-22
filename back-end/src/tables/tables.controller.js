@@ -31,6 +31,15 @@ async function updatecheck(req, res, next) {
   return next();
 }
 
+async function tableExists(req, res, next) {
+  const table = await service.read(req.params.table_id);
+  if (table) {
+    res.locals.table = table;
+    return next();
+  }
+  return next({ status: 400, message: [`Table does not exist`] });
+}
+
 function tableCheck(req, res, next) {
   const {
     data: { table_name, capacity, reservation_id, occupied },
@@ -70,8 +79,14 @@ async function create(req, res) {
   res.json({ data: await service.create(res.locals.table) });
 }
 
+async function destroy(req, res) {
+  await service.delete(res.locals.table.table_id);
+  res.sendStatus(204);
+}
+
 module.exports = {
   list: asyncErrorBoundary(list),
   create: [tableCheck, asyncErrorBoundary(create)],
   update: [asyncErrorBoundary(updatecheck), asyncErrorBoundary(update)],
+  delete: [asyncErrorBoundary(tableExists), asyncErrorBoundary(destroy)],
 };
