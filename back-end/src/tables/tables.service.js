@@ -18,9 +18,17 @@ function create(table){
      .then((created) => created[0])
 }
 
+function update(table) {
+  return knex("tables")
+    .where({ table_id: table.table_id })
+    .update(table, "*")
+    .then((updated) => updated[0]);
+}
+
 module.exports = {
   list,
   read, 
   create,
+  update,
 
 };

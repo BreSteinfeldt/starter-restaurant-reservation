@@ -1,19 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import { seatTable } from "../utils/api";
 import { useParams } from "react-router";
+import { listTables } from "../utils/api";
 
 export default function Seating() {
   const history = useHistory();
-  const [errorMessage, setErrorMessage] = useState();
-  const [table, setTable] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [table, setTable] = useState(null);
+  const [tables, setTables] = useState([]);
   const { reservation_id } = useParams();
 
-  function changeHandler({ target: { name, value } }) {
-    setTable((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  useEffect(loadTables, []);
+
+  function loadTables() {
+    const abortController = new AbortController();
+    setErrorMessage(null);
+    listTables(abortController.signal).then(setTables).catch(setErrorMessage);
+    return () => abortController.abort();
+  }
+
+  function changeHandler({ target: { value } }) {
+    setTable(value);
   }
 
   function cancel() {
@@ -22,6 +30,7 @@ export default function Seating() {
 
   function submitHandler(event) {
     event.preventDefault();
+    if (table == 0) return;
     seatTable(reservation_id, table)
       .then(() => history.push(`/dashboard`))
       .catch(setErrorMessage);
@@ -43,34 +52,25 @@ export default function Seating() {
         )}
         <fieldset className="mt-3">
           <div className="form-group">
+            <h4>For reservation #{reservation_id}</h4>
             <label htmlFor="table_name" className="m-2">
               Table Name:
             </label>
-            <input
-              type="text"
-              placeholder="Table"
-              name="table_name"
-              id="table_name"
+            <select
+              name="table_id"
+              id="table_id"
               required={true}
-              value={table.table_name}
               onChange={changeHandler}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="capacity" className="m-2">
-              Capacity:
-            </label>
-            <input
-              type="number"
-              placeholder="Minimum 1"
-              min="1"
-              max="20"
-              name="capacity"
-              id="capacity"
-              required={true}
-              value={table.capacity}
-              onChange={changeHandler}
-            />
+            >
+              <option value={0}>Please select a table</option>
+              {tables &&
+                tables.map((table, i) => (
+                  <option
+                    key={i}
+                    value={table.table_id}
+                  >{`${table.table_name} - ${table.capacity}`}</option>
+                ))}
+            </select>
           </div>
           <button
             type="button"

@@ -22,8 +22,15 @@ function create(reservation){
      .then((saved) => saved[0])
 }
 
+function read(reservation_id) {
+  return knex("reservations")
+   .where({ reservation_id: reservation_id })
+   .first();
+}
+
 module.exports = {
   list,
   listByDate,
   create,
+  read,
 };

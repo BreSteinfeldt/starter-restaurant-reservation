@@ -6,7 +6,7 @@ export default function TablesView() {
   const [tablesError, setTablesError] = useState(null);
   const [tables, setTables] = useState([]);
 
-  useEffect(loadTables, [tables]);
+  useEffect(loadTables, []);
 
   function loadTables() {
     const abortController = new AbortController();
@@ -21,9 +21,9 @@ export default function TablesView() {
       <h2>Tables</h2>
       {tables &&
         tables.map((table, i) => (
-          <div className="row mb-2">
+          <div key={i} className="row mb-2">
             <div className="col-6">
-              <h5 key={i}>{`${table.table_name}`}</h5>
+            <h5>{`${table.table_name}`}</h5>
               <p>capacity: {table.capacity}</p>
             </div>
             <div data-table-id-status={table.table_id} className="col-6">
