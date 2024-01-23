@@ -49,55 +49,61 @@ function Dashboard() {
   const content = reservations.map((res, i) => (
     <div key={i}>
       {res.status !== "finished" && (
-        <div className="d-flex align-items-center">
-          <div className="col-2">
-            <p>{res.first_name}</p>
-          </div>
-          <div className="col-2">
-            <p>{res.last_name}</p>
-          </div>
-          <div className="col-2">
-            <p>{res.mobile_number}</p>
-          </div>
-          <div className="col-2">
-            <p>{res.reservation_time}</p>
-          </div>
-          <div className="col-2">
-            <p>{res.people}</p>
-          </div>
-          <div className="col-2">
-            {res.status === "booked" && (
-              <>
-                <p data-reservation-id-status={res.reservation_id}>
-                  {res.status}
-                </p>
-                <a href={`/reservations/${res.reservation_id}/seat`}>
+        <>
+          <div className="d-flex align-items-center">
+            <div className="col-2">
+              <p>{res.first_name}</p>
+            </div>
+            <div className="col-2">
+              <p>{res.last_name}</p>
+            </div>
+            <div className="col-2">
+              <p>{res.mobile_number}</p>
+            </div>
+            <div className="col-2">
+              <p>{res.reservation_time}</p>
+            </div>
+            <div className="col-2">
+              <p>{res.people}</p>
+            </div>
+            <div className="col-2">
+              {res.status === "booked" && (
+                <>
+                  <p data-reservation-id-status={res.reservation_id}>
+                    {res.status}
+                  </p>
+                  <a href={`/reservations/${res.reservation_id}/seat`}>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => clickHandler(res, "seated")}
+                    >
+                      Seat
+                    </button>
+                  </a>
+                </>
+              )}
+              {res.status === "seated" && (
+                <>
+                  <p data-reservation-id-status={res.reservation_id}>
+                    {res.status}
+                  </p>
                   <button
                     type="button"
-                    className="btn btn-primary"
-                    onClick={() => clickHandler(res, "seated")}
+                    className="btn btn-warning"
+                    onClick={() => {
+                      if (window.confirm("Finish reservation?"))
+                        clickHandler(res, "finished");
+                    }}
                   >
-                    Seat
+                    Finish
                   </button>
-                </a>
-              </>
-            )}
-            {res.status === "seated" && (
-              <>
-                <p data-reservation-id-status={res.reservation_id}>
-                  {res.status}
-                </p>
-                <button
-                  type="button"
-                  className="btn btn-warning"
-                  onClick={() => clickHandler(res, "finished")}
-                >
-                  Finish
-                </button>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
+          <hr />
+        </>
       )}
     </div>
   ));
@@ -153,6 +159,7 @@ function Dashboard() {
               <h5>Status</h5>
             </div>
           </div>
+          <hr />
           <div>{content}</div>
         </div>
         <div className="col-4">
