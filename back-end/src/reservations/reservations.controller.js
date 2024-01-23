@@ -6,11 +6,7 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
  */
 async function list(req, res) {
   const { date } = req.query;
-  if (date) {
-    res.json({ data: await service.listByDate(date) });
-  } else {
-    res.json({ data: await service.list() });
-  }
+    res.json({ data: await service.list(date) });
 }
 
 function isValid(req, res, next) {
@@ -105,8 +101,20 @@ async function create(req, res) {
   res.status(201).json({ data });
 }
 
+function queryChecker(req, res, next) {
+  const { mobile_phone } = req.query;
+  if (mobile_phone) {
+    res.locals.mobile_number = mobile_phone;
+    return search(req, res);
+  } else return next();
+}
+
+async function search(req, res) {
+  res.json({ data: await service.search(res.locals.mobile_number) });
+}
+
 module.exports = {
-  list: [asyncErrorBoundary(list)],
+  list: [asyncErrorBoundary(queryChecker), asyncErrorBoundary(list)],
   create: [isValid, asyncErrorBoundary(create)],
   update: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(update)],
 };

@@ -37,7 +37,14 @@ export default function TablesView() {
               {table.occupied && (
                 <button
                   className="btn btn-warning"
-                  onClick={() => deleteHandler(table.table_id)}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Is this table ready to seat new guests? This cannot be undone."
+                      )
+                    )
+                      deleteHandler(table.table_id);
+                  }}
                 >
                   Finish
                 </button>
