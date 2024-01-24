@@ -6,12 +6,12 @@ export default function Table({
   initialState = {
     table_name: "",
     reservation_id: null,
-    capacity: 1,
+    capacity: 0,
     occupied: false,
   },
 }) {
   const history = useHistory();
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const [table, setTable] = useState(initialState);
 
   function changeHandler({ target: { name, value } }) {
@@ -39,11 +39,7 @@ export default function Table({
         {errorMessage && (
           <div className="alert alert-danger">
             <h4>Please fix the following errors: </h4>
-            <ul>
-              {errorMessage.message.map((err, i) => (
-                <li key={i}>{err}</li>
-              ))}
-            </ul>
+            <p>{errorMessage.message}</p>
           </div>
         )}
         <fieldset className="mt-3">
@@ -68,7 +64,7 @@ export default function Table({
             <input
               type="number"
               placeholder="Minimum 1"
-              min="1"
+              min="0"
               max="20"
               name="capacity"
               id="capacity"
