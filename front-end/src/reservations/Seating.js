@@ -43,11 +43,7 @@ export default function Seating() {
         {errorMessage && (
           <div className="alert alert-danger">
             <h4>Please fix the following errors: </h4>
-            <ul>
-              {errorMessage.message.map((err, i) => (
-                <li key={i}>{err}</li>
-              ))}
-            </ul>
+            {errorMessage.message}
           </div>
         )}
         <fieldset className="mt-3">
@@ -80,7 +76,7 @@ export default function Seating() {
             Cancel
           </button>
           <button type="submit" className="btn btn-primary mx-2">
-            Submit
+            Seat
           </button>
         </fieldset>
       </form>

@@ -28,6 +28,17 @@ export default function Search() {
     setMobile_number(value);
   }
 
+  function handleCancel(reservation) {
+    if (
+      window.confirm(
+        "Do you want to cancel this reservation? \n \n \nThis cannot be undone."
+      )
+    ) {
+      updateReservation(reservation, "cancelled");
+      window.location.reload();
+    }
+  }
+
   function submitHandler(event) {
     event.preventDefault();
     loadSearch();
@@ -46,11 +57,7 @@ export default function Search() {
         {errorMessage && (
           <div className="alert alert-danger">
             <h4>Please fix the following errors: </h4>
-            <ul>
-              {errorMessage.message.map((err, i) => (
-                <li key={i}>{err}</li>
-              ))}
-            </ul>
+            <p>{errorMessage.message}</p>
           </div>
         )}
         <fieldset className="mt-3">
@@ -114,39 +121,50 @@ export default function Search() {
                   <p>{res.people}</p>
                 </div>
                 <div className="col-2">
+                <p data-reservation-id-status={res.reservation_id}>
+                    {res.status}
+                  </p>
                   {res.status === "booked" && (
-                    <>
-                      <p data-reservation-id-status={res.reservation_id}>
-                        {res.status}
-                      </p>
-                      <a href={`/reservations/${res.reservation_id}/seat`}>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={() => clickHandler(res, "seated")}
-                        >
-                          Seat
-                        </button>
-                      </a>
-                    </>
-                  )}
-                  {res.status === "seated" && (
-                    <>
-                      <p data-reservation-id-status={res.reservation_id}>
-                        {res.status}
-                      </p>
+              <a href={`/reservations/${res.reservation_id}/seat`}>
                       <button
                         type="button"
-                        className="btn btn-warning"
-                        onClick={() => {
-                          if (window.confirm("Finish reservation?"))
-                            clickHandler(res, "finished");
-                        }}
+                        className="btn btn-primary m-2 btn=-sm"
+                        onClick={() => clickHandler(res, "seated")}
                       >
-                        Finish
+                         Seat
                       </button>
-                    </>
+                      </a>
                   )}
+                  {res.status === "seated" && (
+                    <button
+                      type="button"
+                      className="btn btn-warning"
+                      onClick={() => {
+                        if (window.confirm("Finish reservation?"))
+                          clickHandler(res, "finished");
+                      }}
+                    >
+                      Finish
+                    </button>
+                  )}
+                  {res.status === "finished" && <p>{res.status}</p>}
+                  {res.status !== "cancelled" && (
+                    <button
+                      data-reservation-id-cancel={res.reservation_id}
+                      className="m-2 btn btn-danger btn-sm"
+                      onClick={() => handleCancel(res)}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  <a href={`/reservations/${res.reservation_id}/edit`}>
+                  <button
+                      type="button"
+                      className="btn btn-secondary m-2 btn=-sm"
+                    >
+                      Edit
+                    </button>
+                  </a>
                 </div>
               </div>
               <hr />
