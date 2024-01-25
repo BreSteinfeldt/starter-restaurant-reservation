@@ -103,3 +103,25 @@ export const formatDate = (date) => {
 
   return `${month} ${day}, ${year}`;
 };
+
+export const formatTime = (time) => {
+  let hour = time[0] + time[1];
+  let minutes = time[3] + time[4];
+  let meridiem = "AM";
+  if (Number(hour) >= 12) {
+    meridiem = "PM";
+    Number(hour) === 12 ? (hour = 12) : (hour -= 12);
+  }
+  return `${hour}:${minutes} ${meridiem}`;
+};
+
+export const formatPhone = (number) => {
+  const cleaned = ("" + number).replace(/\D/g, "");
+  const match = cleaned.match(/^(1|)?(\d{3})?(\d{3})(\d{4})$/);
+  if (match) {
+    const intlCode = match[1] ? "+1 " : "";
+    const areaCode = match[2] ? `(${match[2]})` : "";
+    return [intlCode, areaCode, match[3], "-", match[4]].join("");
+  }
+  return number;
+}
