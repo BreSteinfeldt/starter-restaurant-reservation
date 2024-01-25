@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { listReservations } from "../utils/api";
 import ErrorAlert from "../Errors/ErrorAlert";
-import Reservation from "../Reservations/Reservation";
+import Reservation from "../reservations/Reservation";
 
 export default function FindByNumber() {
   const [mobile_number, setMobileNumber] = useState("");

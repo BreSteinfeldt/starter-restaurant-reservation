@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router";
 import ErrorAlert from "../Errors/ErrorAlert";
-import Reservation from "../Reservations/Reservation";
+import Reservation from "../reservations/Reservation";
 import { listTables, updateTable, readReservation } from "../utils/api";
 
 export default function Seating() {
