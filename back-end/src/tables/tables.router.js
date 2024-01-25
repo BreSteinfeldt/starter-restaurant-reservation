@@ -1,4 +1,4 @@
-const methodNotAllowed = require("../errors/methodNotAllowed");
+const methodNotAllowed = require("../errors/notFound");
 const router = require("express").Router();
 const controller = require("./tables.controller");
 
@@ -13,5 +13,8 @@ router
  .put(controller.update)
  .delete(controller.delete)
  .all(methodNotAllowed);
+
+router.route("/:table_id").get(controller.read).all(methodNotAllowed);
+
 
 module.exports = router;

@@ -1,7 +1,11 @@
-import { useState } from "react";
-import { useHistory} from "react-router";
-import ErrorAlert from "../layout/ErrorAlert";
-import {createReservation} from "../utils/api";
+import { useState, useEffect } from "react";
+import { useHistory, useParams } from "react-router";
+import ErrorAlert from "../Errors/ErrorAlert";
+import {
+  createReservation,
+  readReservation,
+  updateReservation,
+} from "../utils/api";
 
 export default function ReservationForm({ type }) {
   const initialState = {
@@ -10,14 +14,13 @@ export default function ReservationForm({ type }) {
     mobile_number: "",
     reservation_date: "",
     reservation_time: "",
-    people: "",
-    status: "booked",
+    people: 1,
   };
 
+  const { reservation_id } = useParams();
   const history = useHistory();
   const [reservationsError, setReservationsError] = useState(null);
   const [formData, setFormData] = useState({ ...initialState });
-
 
   function changeHandler({ target }) {
     const value =
@@ -28,10 +31,27 @@ export default function ReservationForm({ type }) {
     });
   }
 
-  const submitHandler = async (event) => {
+  useEffect(() => {
+    if (type === "Edit") {
+      const loadForm = async () => {
+        const newRes = await readReservation(reservation_id);
+        setFormData({
+          ...newRes,
+          reservation_date: newRes.reservation_date.slice(0, 10),
+        });
+      };
+      loadForm();
+    }
+  }, [type, reservation_id]);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await createReservation({ data: formData });
+      if (type === "Edit") {
+        await updateReservation(reservation_id, { data: formData });
+      } else {
+        await createReservation({ data: formData });
+      }
       setFormData({ ...initialState });
       history.push(`/dashboard?date=${formData.reservation_date}`);
     } catch (err) {
@@ -44,10 +64,7 @@ export default function ReservationForm({ type }) {
   return (
     <div className="d-flex flex-column align-items-center">
       <h2 className="text-center pb-2">{type} Reservation</h2>
-      <form action="" onSubmit={submitHandler}>
-
-      <h1 className="mx-2 mt-4">Create Reservation (UTC Time Zone)</h1>
-
+      <form action="" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="first_name" className="form-label">
             First name:
@@ -148,6 +165,12 @@ export default function ReservationForm({ type }) {
             onClick={() => history.goBack()}
           >
             Cancel
+          </button>
+          <button
+            className="btn btn-sm btn-warning"
+            onClick={() => setFormData(initialState)}
+          >
+            Reset
           </button>
         </div>
       </form>
